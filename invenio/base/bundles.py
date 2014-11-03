@@ -119,8 +119,10 @@ jquery = Bundle(
         "MathJax": "~2.4",  # orphan
         "swfobject": "latest",  # orphan
         "typeahead.js": "latest",
-        "uploadify": "latest"  # orphan
+        "uploadify": "latest",  # orphan
         #"bootstrap": "*", is set by invenio.css already.
+        "underscore": "latest",
+        "chartjs": "latest",
     }
 )
 

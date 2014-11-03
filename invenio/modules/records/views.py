@@ -43,6 +43,8 @@ from invenio.ext.template.context_processor import \
 from invenio.modules.collections.models import Collection
 from invenio.modules.search.signals import record_viewed
 from invenio.utils import apache
+from invenio.modules.statistics.api.endpoints import viewstatistics_only
+from invenio.modules.statistics.config import STATS_CFG
 
 from .api import get_record
 from .models import Record as Bibrec
@@ -178,6 +180,57 @@ def metadata(recid, of='hd', ot=None):
     })
 
     return render_template('records/metadata.html', of=of, ot=ot)
+
+
+@blueprint.route('/<int:recid>/statistics', methods=['GET', 'POST'])
+@request_record
+@register_menu(blueprint, 'record.statistics', _('Statistics'), order=9,
+               visible_when=visible_collection_tabs('statistics'),
+               endpoint_arguments_constructor=lambda:
+               dict(recid=request.view_args.get('recid')))
+@viewstatistics_only
+def statistics(recid):
+    statistics = []
+    for (event_name, event) in STATS_CFG['events'].items():
+        event_statistics = STATS_CFG['events'][event_name]['statistics']
+        for (statistic_name, statistic) in event_statistics.items():
+            statistics.append({
+                'name': event['title'] + ' ' + statistic_name,
+                'path': blueprint.url_prefix + '/' + str(recid) +
+                '/statistics/' + event_name + '/' + statistic_name
+            })
+
+    return render_template('records/statistics_index.html',
+                           statistics=statistics)
+
+
+@blueprint.route('/<int:recid>/statistics/<event_name>/<statistic>',
+                 methods=['GET'])
+@request_record
+@viewstatistics_only
+def view_statistic(recid, event_name=None, statistic=None):
+    if event_name not in STATS_CFG['events']:
+        # 404
+        return 'no such event', 404
+    if 'statistics' not in STATS_CFG['events'][event_name]:
+        # 404
+        return 'no statistics associated with this event', 404
+    if statistic not in STATS_CFG['events'][event_name]['statistics']:
+        # 404
+        return 'no such statistic for this event', 404
+    event = STATS_CFG['events'][event_name]
+    display = event['statistics'][statistic]['display']
+    query_type = event['statistics'][statistic]['query_type']
+
+    data = {
+        'recid': recid,
+        'doc_type': event_name,
+        'statistic_data': event['statistics'][statistic],
+        'title': event['title'],
+        'query_type': query_type,
+    }
+    return render_template('records/statistics_%s.html' % display,
+                           data=data)
 
 
 @blueprint.route('/<int:recid>/references', methods=['GET', 'POST'])
