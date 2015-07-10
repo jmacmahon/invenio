@@ -49,11 +49,15 @@ from .models import Record as Bibrec
 from .utils import citations_nb_counts, references_nb_counts, \
     visible_collection_tabs
 
+from logging import getLogger
+
 blueprint = Blueprint('record', __name__, url_prefix="/" + CFG_SITE_RECORD,
                       static_url_path='/record', template_folder='templates',
                       static_folder='static')
 
 default_breadcrumb_root(blueprint, '.')
+
+pageviews_logger = getLogger('events.pageviews')
 
 
 def request_record(f):
@@ -153,6 +157,7 @@ def metadata(recid, of='hd', ot=None):
     from invenio.modules.formatter import get_output_format_content_type
     register_page_view_event(recid, current_user.get_id(),
                              str(request.remote_addr))
+    from logging import getLogger
     if get_output_format_content_type(of) != 'text/html':
         from invenio.modules.search.views.search import \
             response_formated_records
@@ -164,6 +169,13 @@ def metadata(recid, of='hd', ot=None):
         recid=recid,
         id_user=current_user.get_id(),
         request=request)
+
+    # Log the pageview event
+    pageviews_logger.info({
+        'id_bibrec': recid,
+        'id_user': current_user.get_id(),
+        'client_host': request.remote_addr
+    })
 
     return render_template('records/metadata.html', of=of, ot=ot)
 
