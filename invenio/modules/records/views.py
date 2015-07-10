@@ -37,7 +37,7 @@ from invenio.base.decorators import wash_arguments
 from invenio.base.globals import cfg
 from invenio.base.i18n import _
 from invenio.base.signals import pre_template_render
-from invenio.config import CFG_SITE_RECORD
+from invenio.config import CFG_SITE_RECORD, CFG_ES_STATISTICS_INDEX_PREFIX
 from invenio.ext.template.context_processor import \
     register_template_context_processor
 from invenio.modules.collections.models import Collection
@@ -298,18 +298,9 @@ def keywords(recid):
                visible_when=visible_collection_tabs('usage'))
 def usage(recid):
     """Return usage statistics."""
-    from invenio.legacy.bibrank.downloads_similarity import \
-        calculate_reading_similarity_list
-    from invenio.legacy.bibrank.downloads_grapher import \
-        create_download_history_graph_and_box
-    viewsimilarity = calculate_reading_similarity_list(recid, "pageviews")
-    downloadsimilarity = calculate_reading_similarity_list(recid, "downloads")
-    downloadgraph = create_download_history_graph_and_box(recid)
-
     return render_template('records/usage.html',
-                           viewsimilarity=viewsimilarity,
-                           downloadsimilarity=downloadsimilarity,
-                           downloadgraph=downloadgraph)
+                           recid=recid,
+                           index_pattern=CFG_ES_STATISTICS_INDEX_PREFIX + '*')
 
 
 @blueprint.route('/', methods=['GET', 'POST'])

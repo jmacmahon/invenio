@@ -24,43 +24,6 @@
   <div class="page-header">
     {{ format_record(recid, 'hs', ln=g.ln)|safe }}
   </div>
-
-  {%- if viewsimilarity -%}
-  <div class="col-md-6">
-  <h4>{{ _("People who viewed this page also viewed:") }}</h4>
-  <ul class="list-unstyled">
-  {%- for c in viewsimilarity -%}
-  <li>
-    <span class="badge">{{ c[1] }}</span> &nbsp;
-    {{ format_record(c[0], 'hs', ln=g.ln)|safe }}
-  </li>
-  {%- endfor -%}
-  <hr/>
-  </div>
-  </ul>
-  {%- endif -%}
-
-  {%- if downloadsimilarity -%}
-  <div class="col-md-5">
-  <h4>{{ _("People who downloaded files from this page also viewed:") }}</h4>
-  <ul class="list-unstyled">
-  {%- for c in downloadsimilarity -%}
-  <li>
-    <span class="badge">{{ c[1] }}</span> &nbsp;
-    {{ format_record(c[0], 'hs', ln=g.ln)|safe }}
-  </li>
-  {%- endfor -%}
-  <hr/>
-  </div>
-  </ul>
-  {%- endif -%}
-
-  {%- if downloadgraph -%}
-  <div class="col-md-5">
-  <h4>{{ _("Download history graph") }}</h4>
-  <ul class="list-unstyled">
-  {{ downloadgraph|safe }}
-  </ul>
-  {%- endif -%}
+  <iframe src="http://localhost:5601/#/dashboard?embed&_g=(refreshInterval:(display:Off,pause:!f,section:0,value:0),time:(from:now%2FM,mode:quick,to:now))&_a=(filters:!(),panels:!((col:1,id:'Downloads,-Pageviews,-Bots',row:1,size_x:12,size_y:6,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'id_bibrec:{{ recid }}')),title:'Record')" height="600" width="100%"></iframe>
 
 {% endblock %}
