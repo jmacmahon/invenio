@@ -345,6 +345,12 @@ if CFG_CERN_SITE:
 else:
     cds_exports = []
 
+try:
+    from invenio.bibencode_youtube import WebInterfaceYoutube
+except:
+    register_exception(alert_admin=True, subject='EMERGENCY')
+    WebInterfaceYoutube = WebInterfaceDumbPages
+
 if CFG_OPENAIRE_SITE:
     try:
         from invenio.openaire_deposit_webinterface import \
@@ -413,6 +419,7 @@ class WebInterfaceInvenio(WebInterfaceSearchInterfacePages):
                    'goto',
                    'info',
                    'authorlist',
+                   'youtube',
                ] + test_exports + openaire_exports + cds_exports
 
     def __init__(self):
@@ -454,6 +461,7 @@ class WebInterfaceInvenio(WebInterfaceSearchInterfacePages):
         yourcomments = WebInterfaceDisabledPages()
         goto = WebInterfaceDisabledPages()
         authorlist = WebInterfaceDisabledPages()
+        youtube = WebInterfaceYoutube()
         if CFG_CERN_SITE:
             cdslib = WebInterfaceDisabledPages()
             setlink = WebInterfaceDisabledPages()
@@ -461,7 +469,6 @@ class WebInterfaceInvenio(WebInterfaceSearchInterfacePages):
             images = WebInterfaceImagesPages()
             video = WebInterfaceEmbedVideo()
             api = WebInterfaceAPIPages()
-
     else:
         submit = WebInterfaceSubmitPages()
         youraccount = WebInterfaceYourAccountPages()
@@ -494,6 +501,7 @@ class WebInterfaceInvenio(WebInterfaceSearchInterfacePages):
         yourcomments = WebInterfaceYourCommentsPages()
         goto = WebInterfaceGotoPages()
         authorlist = WebInterfaceAuthorlistPages()
+        youtube = WebInterfaceYoutube()
         if CFG_CERN_SITE:
             cdslib = WebInterfaceAlephPages()
             setlink = WebInterfaceSetLinkPages()
